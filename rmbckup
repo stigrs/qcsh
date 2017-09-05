@@ -1,0 +1,29 @@
+#!/bin/sh
+
+# Move backup files (*~, *.bak, *.tmp) older than 7 days from $HOME to trash. 
+# Do not remove hidden files.
+
+backups=`find "$HOME" -name "*~" -mtime +7`
+for file in $backups; do
+    echo "mv -f $file .trash"
+    mv -f $file .trash
+done
+
+backups=`find "$HOME" -name "*.bak" -mtime +7`
+for file in $backups; do
+    hidden=`echo $file | grep "$HOME\/\."`
+    if [ -z "$hidden" ]; then
+	echo "mv -f $file .trash"
+	mv -f $file .trash
+    fi
+done
+
+backups=`find "$HOME" -name "*.tmp" -mtime +7`
+for file in $backups; do
+    hidden=`echo $file | grep "$HOME\/\."`
+    if [ -z "$hidden" ]; then
+	echo "mv -f $file .trash"
+	mv -f $file .trash
+    fi
+done
+

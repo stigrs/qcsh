@@ -1,0 +1,19 @@
+#!/bin/sh
+
+# Make backup of files. If a backup already exists, make a copy.
+
+if [ $# -lt 1 ]; then
+        echo "usage: $0 file(s)"
+        exit 1
+fi      
+
+files="$@"
+
+for f in $files; do
+        orig_file="$f"
+        bak_file="$f.bak"
+        if [ -f "$bak_file" ]; then
+                mv -f "$bak_file" "$bak_file.bak"
+        fi
+        cp -f "$orig_file" "$bak_file"
+done

@@ -1,0 +1,19 @@
+#!/bin/sh
+
+# Change suffix of files.
+
+if [ $# -lt 2 ]; then
+    echo "usage: $0 old_suffix new_suffix"
+    exit 1
+fi
+
+old_suffix=$1
+new_suffix=$2
+
+wrkdir=`pwd`
+old_files=`ls $wrkdir/*.$old_suffix`
+
+for file in $old_files; do
+    mv -f $file `echo $file | sed "s:\(.*\.\)${old_suffix}:\1${new_suffix}:"`
+done 
+

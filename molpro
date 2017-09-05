@@ -1,0 +1,21 @@
+#!/bin/sh
+
+# Script for running Molpro.
+
+ncpus=1
+if [ -f $TMP/machines ]; then
+        ncpus=`cat $TMP/machines | wc -l`
+fi
+
+MOLPRO_OPTIONS="\
+-d $SCRATCH \
+-I $SCRATCH \
+-W $HOME/wfu \
+-L /site/molpro/lib/molprop_2008_1_Linux_x86_64_i8/ \
+-G 256000000 \
+-k `cat $HOME/.molpro.key` \
+-n $ncpus" 
+export MOLPRO_OPTIONS
+
+exec /site/molpro/bin/molprop_2008_1_Linux_x86_64_i8 $*
+

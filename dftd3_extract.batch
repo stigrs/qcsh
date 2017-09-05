@@ -1,0 +1,13 @@
+#!/bin/sh
+
+# Script for extracting DFT-D3 Edisp from output files.
+
+files=`ls *.log`
+
+for f in $files
+do
+        name=`basename $f .log`
+        en=`grep Edisp $f | awk '{print $4}'` 
+        echo $name $en
+done
+

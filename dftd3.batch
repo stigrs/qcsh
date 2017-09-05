@@ -1,0 +1,13 @@
+#!/bin/sh
+
+# Script for running B2PLYP-D3 calculations.
+
+files=`ls *.xyz`
+
+for f in $files
+do
+        name=`basename $f ".xyz"`
+        dftd3 $f -func b2-plyp -bj > $name"_bj.log"
+        dftd3 $f -func b2-plyp -zero > $name"_zero.log"
+done
+

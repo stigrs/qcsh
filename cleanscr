@@ -1,0 +1,8 @@
+#!/bin/csh
+
+# Clean scratch directory.
+
+if (-e /scratch/$USER) then
+        rm -rf /scratch/$USER/*
+endif
+

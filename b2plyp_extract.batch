@@ -1,0 +1,13 @@
+#!/bin/sh
+
+# Extract B2PLYP energies from Gaussian output files.
+
+files=`ls *.log`
+
+for f in $files
+do
+        name=`basename $f .log`
+        en=`grep E\(B2PLYP\) $f | awk '{print $6}' | sed 's/D/E/'`
+        echo $name $en
+done
+

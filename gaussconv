@@ -1,0 +1,17 @@
+#!/bin/sh
+
+# Check if stationary point from a Gaussian opt + freq job has converged.
+
+files=`ls *.log *.out 2> /dev/null`
+
+for f in $files
+do
+        nopt=`grep "Stationary point found" $f | wc -l`
+        if [ $nopt -eq 2 ]
+        then
+                echo $f : Geometry converged
+        else
+                echo $f : Geometry not converged
+        fi
+done
+

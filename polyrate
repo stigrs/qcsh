@@ -1,0 +1,126 @@
+#!/bin/sh
+
+# Script for running Polyrate.
+
+# Polyrate settings. 
+
+polyver="polyrate9.7"
+polydir="$HOME/src/$polyver"
+exedir=$polydir/exe
+exe=$exedir/$polyver.dum.serial.exe
+
+# Definition of functions.
+
+usage() {
+    echo "Usage: $0 [options]"
+    echo
+    echo "Options:"
+    echo " -j, --jobname=<JOBNAME>   name of job (mandatory)"
+    echo " -t, --jobtype=<JOBTYPE>   type of job (TST, IVTST-M, ISPE or IOE)"
+    echo " -h, --help                display this text and exit"
+    echo
+    echo "Default jobtype is IVTST-M."
+}
+
+check_jobtype() {
+    case "$1" in
+	tst | TST | ivtst-m | IVTST-M | ispe | ISPE | ioe | IOE)
+	    echo "Job type: $1"
+	    ;;
+	*)
+	    echo "Bad job type: $1"
+	    echo
+	    usage
+	    exit 1
+	    ;;
+    esac
+}
+
+driver() {
+    jobname=$1
+    jobtype=$2
+
+    # Copy the data files to Polyrate filenames.
+
+    cp $jobname.dat poly.fu5
+
+    case "$jobtype" in
+	tst | TST)
+	    cp $jobname.fu29 poly.fu29
+	    ;;
+	ivtst-m | IVTST-M)
+	    cp $jobname.fu31 poly.fu31
+	    ;;
+	ispe | ISPE)
+	    cp $jobname.fu51 poly.fu51
+	    ;;
+	ioe | IOE)
+	    cp $jobname.fu50 poly.fu50
+	    ;;
+    esac
+
+    # Run Polyrate.
+    $exe
+
+    # Clean-up.
+    mv -f poly.fu6 $jobname.fu6 > /dev/null 2>&1
+    mv -f poly.fu15 $jobname.fu15 > /dev/null 2>&1
+    rm -f poly.fu5 poly.fu29 poly.fu31 poly.fu50 poly.fu51 poly.fu14 esp.fu61 \
+	> /dev/null 2>&1
+}
+
+# Parse command line arguments.
+
+if [ $# -lt 1 ]; then
+    usage
+    exit 1
+fi
+
+jobname=""
+jobtype="IVTST-M"
+
+while [ $# -gt 0 ]; do
+    case "$1" in
+	-j)
+	    jobname="$2"
+	    shift
+	    ;;
+	--jobname=*)
+	    jobname=`echo "$1" | sed 's/--jobname=//'`
+	    ;;
+	-t)
+	    jobtype="$2"
+	    shift
+	    ;;
+	--jobtype=*)
+	    jobtype=`echo "$1" | sed 's/--jobtype=//'`
+	    ;;
+	-h | --help)
+	    usage
+	    exit 1
+	    ;;
+	*)
+	    echo "unknown option: $1"
+	    usage
+	    exit 1
+	    ;;
+    esac
+    shift
+done
+
+if [ -n "$jobname" ]; then
+    echo "Job name: $jobname"
+else
+    echo "Error: no jobname given"
+    usage
+    exit 1
+fi
+
+check_jobtype $jobtype
+
+# Run Polyrate.
+
+driver $jobname $jobtype
+
+# Done.
+

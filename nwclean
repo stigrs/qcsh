@@ -1,0 +1,23 @@
+#!/bin/csh
+
+# Remove NWChem scratch files.
+
+set JOB = $1
+if (null$JOB == null) then
+        echo Usage: $0 job_name
+        exit 1
+endif
+
+if (null$JOB:r != null) then
+        set JOB = $JOB:r
+endif
+
+if (-e $JOB".b")          rm -f $JOB".b"
+if (-e $JOB".b^-1")       rm -f $JOB".b^-1"
+if (-e $JOB".c")          rm -f $JOB".c"
+if (-e $JOB".fd_ddipole") rm -f $JOB".fd_ddipole"
+if (-e $JOB".gridpts.0")  rm -f $JOB".gridpts.0"
+if (-e $JOB".grinfo.0")   rm -f $JOB".grinfo.0"
+if (-e $JOB".p")          rm -f $JOB".p"
+if (-e $JOB".zmat")       rm -f $JOB".zmat"
+

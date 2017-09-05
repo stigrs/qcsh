@@ -1,0 +1,19 @@
+#!/bin/sh
+
+# Script for converting *.fchk.gz files to *xyz files.
+
+dir=$1
+
+if [ null$dir = "null" ]
+then
+        dir="."
+fi
+
+files=`ls $dir/*.fchk.gz`
+
+for f in $files
+do
+        name=`basename $f ".fchk.gz"`
+        fchkgztoxyz $f > $name.xyz
+done
+

@@ -1,0 +1,97 @@
+#!/bin/sh 
+
+# Script for running Gaussian.
+
+# Information:
+# $1 = Jobname, i.e. name of input file without extension
+
+job=$1
+
+prjdir=`pwd`          # project directory
+scrdir=/scratch/$USER # scratch directory
+
+# Create temporary work directory
+
+wrkdir=$scrdir/$job.$$
+mkdir $wrkdir
+
+# Override default GAUSS_SCRDIR
+
+export GAUSS_SCRDIR=$wrkdir
+
+# Copy files to temporary work directory
+
+if [ -f $prjdir/$job.com ]
+then
+        cp -f $prjdir/$job.com $wrkdir/$job.com
+fi
+if [ -f $prjdir/$job.chk.gz ]
+then
+        echo "Unformatted checkpoint file found"
+        echo "Copying the unformatted checkpoint file to scratch"
+        cp -f $prjdir/$job.chk.gz $wrkdir/$job.chk.gz
+        gunzip $scrdir/$job.chk.gz
+else
+        if [ -f $prjdir/$job.fchk.gz ]
+        then
+                echo "Formatted checkpoint file found"
+                echo "Copying the formatted checkpoint file to scratch"
+                cp -f $prjdir/$job.fchk.gz $wrkdir/$job.fchk.gz
+                gunzip $wrkdir/$job.fchk.gz
+                $g09root/g09/unfchk $wrkdir/$job.fchk
+        fi
+fi
+
+# Run Gaussian 09
+
+cd $wrkdir
+
+nohup g09 < $job.com > $job.log 2>&1
+
+# Clean up
+
+echo "Files in scratch directory:"
+ls -lt
+
+echo "Scratch disk space:"
+df -kh .
+
+if [ -f $job.log ]
+then
+        if tail -1 $job.log | grep "Normal termination" > /dev/null 
+        then
+                fok=true
+        fi
+        cp -f $job.log $prjdir/$job.log
+fi
+if [ -f $job.chk ]
+then
+        if test $fok = true
+        then
+                echo "Gaussian 09 terminated normally"
+                echo "Formatting the checkpoint file ..."
+                $g09root/g09/formchk $job.chk
+                halt=$?
+                if [ $halt -gt 0 ]
+                then
+                        echo "Formatting checkpoint file failed"
+                        echo "Copying unformatted checkpoint file to home"
+                        gzip $job.chk
+                        cp -f $job.chk.gz $prjdir/$job.chk.gz
+                fi
+                echo "Copying formatted checkpoint file to home"
+                gzip $job.fchk
+                cp -f $job.fchk.gz $prjdir/$job.fchk.gz
+        else
+                echo "Gaussian 09 did not terminate normally"
+                echo "Copying unformatted checkpoint file to home"
+                gzip $job.chk
+                cp -f $job.chk.gz $prjdir/$job.chk.gz
+        fi
+fi
+
+cd $prjdir
+rm -rf $wrkdir
+
+# Done
+

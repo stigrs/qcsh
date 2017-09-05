@@ -1,0 +1,60 @@
+#!/bin/sh
+
+# Wrapper script for running Molpro interactively in serial mode on 
+# titan.uio.no.
+
+# Set up job.
+
+if [ $# -lt 1 ]; then
+        echo "usage $0 input.inp"
+        exit 1
+fi
+
+if [ `hostname` = "login-0-0.local" -o `hostname` = "login-0-1.local" ]; then
+        echo "You cannot run jobs on the login node!"
+        exit 1
+fi
+
+inp=$1
+wrk=`pwd`
+scr=/work/$USER
+
+if [ ! -d $scr ]; then
+        mkdir $scr
+fi
+
+cp $inp $scr
+cd $scr
+
+# Execute Molpro.
+
+ncpus=1
+
+MOLPRO_OPTIONS="\
+-d $scr \
+-I $scr \
+-W $HOME/wfu \
+-L /site/molpro/lib/molprop_2008_1_Linux_x86_64_i8/ \
+-G 256000000 \
+-k `cat $HOME/.molpro.key` \
+-n $ncpus" 
+export MOLPRO_OPTIONS
+
+/site/molpro/bin/molprop_2008_1_Linux_x86_64_i8 $inp > /dev/null
+
+# Clean up.
+
+suffix=`echo $inp | awk -F. '{ print $2 }'`
+base=`basename $inp "."$suffix`
+files=`ls $base*`
+
+for file in $files; do
+        if [ $file = $inp ]; then
+                continue
+        fi
+        cp -f $file $wrk
+done
+
+cd $wrk
+rm -rf $scr
+

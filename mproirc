@@ -1,0 +1,78 @@
+#!/bin/sh
+
+# Script for extracting MOLPRO IRC data.
+
+usage()
+{
+    echo "Usage: $0 [options]" 
+    echo 
+    echo "Options:" 
+    echo "-f <file.grd>  name of file with MOLPRO IRC data" 
+    echo "-r             reverse IRC data (logical)" 
+    echo "-s             change sign of S values (logical)" 
+    echo "-h             display this text and exit"
+}
+
+if [ $# -lt 1 ]; then
+    usage
+    exit 2
+fi
+
+# Set default values.
+rev=0
+chsign=0
+
+# Parse command line arguments.
+while [ $# -ge 1 ]; do
+    val=$1
+    shift
+    case "$val" in
+        -f)
+            file=$1
+            shift
+            ;;
+        -r)
+            rev=1
+            ;;
+        -s) 
+            chsign=1
+            ;;
+        -h)
+            usage
+            exit
+            ;;
+        *)
+            echo "Unknown option $1"
+            exit 2
+            ;;
+    esac
+done
+
+# Check input values.
+if [ -z $file ]; then
+    echo "You must give name of file with IRC data!"
+    exit 1
+fi
+if [ ! -f $file ]; then
+    echo "Could not find $file!"
+    exit 1
+fi
+suff=`echo $file | sed s'/.*\.//'`
+if [ $suff != grd ]; then
+    echo "Unknown file, please provide a *.grd file!"
+    exit 1
+fi
+
+# Write output.
+if [ $rev = 0 -a $chsign = 1 ]; then
+    grep IRC $file | awk '{ printf "-%f\t%f\n", $3, $5 }'
+elif [ $rev = 1 -a $chsign = 0 ]; then
+    grep IRC $file | awk '{ printf "%f\t%f\n", $3, $5 }' | sort -r
+elif [ $rev = 1 -a $chsign = 1 ]; then
+    grep IRC $file | awk '{ printf "-%f\t%f\n", $3, $5 }' | sort -r
+else
+    grep IRC $file | awk '{ printf "%f\t%f\n", $3, $5 }' 
+fi
+
+# vi:ts=4:sw=4:sts=4
+

@@ -1,0 +1,15 @@
+#!/bin/csh
+
+# Check numerical error versus a threshold
+#
+# Arguments:
+#  val1
+#  val2
+#  threshold
+
+set diff = `echo $1 $2 | \
+    awk '{ if ($1 > $2) printf "%.1e", $1 - $2 ; else printf "%.1e", $2 - $1 }'`
+
+echo $diff
+
+exit `echo $diff $3 | awk '{ if ($1 > $2) print 1 ; else print 0 }'`

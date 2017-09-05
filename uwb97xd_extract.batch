@@ -1,0 +1,13 @@
+#!/bin/sh
+
+# Script for extracting UwB97XD information from Gaussian output files.
+
+files=`ls *.log`
+
+for f in $files
+do
+        en=`grep E\(UwB97XD\) $f | tail -1 | awk '{print $5}'`
+        zpe=`grep "Zero-point correction" $f | awk '{print $3}'`
+        echo `basename $f .log` : E = $en , ZPE = $zpe
+done
+
