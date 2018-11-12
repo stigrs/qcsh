@@ -1,0 +1,10 @@
+#!/bin/sh
+
+files=`ls *.out *.log`
+
+for f in $files
+do
+        rot=`grep "Rotational constants" $f | tail -1`
+        echo $f: $rot
+done
+

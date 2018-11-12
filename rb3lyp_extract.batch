@@ -1,12 +1,12 @@
-#!/bin/sh
+#!/bin/sh 
 
-# Script for extracting RwB97XD information from Gaussian output files.
+# Script for extracting RB3LYP information from Gaussian output files.
 
 files=`ls *.log`
 
 for f in $files
 do
-        en=`grep E\(RwB97XD\) $f | tail -1 | awk '{print $5}'`
+        en=`grep E\(RB3LYP\) $f | tail -1 | awk '{print $5}'`
         zpe=`grep "Zero-point correction" $f | awk '{print $3}'`
         echo `basename $f .log` : E = $en , ZPE = $zpe
 done

@@ -1,0 +1,56 @@
+#!/bin/sh 
+
+# Script for running Cfour.
+
+# Information:
+# $1 = Jobname, i.e. name of input file without extension
+
+job=$1
+
+prjdir=`pwd`            # project directory
+scrdir=/scratch/$USER   # scratch directory
+basdir=/opt/cfour/basis # Cfour basis directory
+
+# Create temporary work directory
+
+wrkdir=$scrdir/$job.$$
+mkdir $wrkdir
+
+# Override default GAUSS_SCRDIR
+
+export GAUSS_SCRDIR=$wrkdir
+
+# Copy files to temporary work directory
+
+if [ -f $prjdir/$job.inp ]
+then
+        cp -f $prjdir/$job.inp $wrkdir/ZMAT
+fi
+if [ -f $basdir/GENBAS ]
+then
+        cp -f $prjdir/GENBAS $wrkdir/GENBAS
+
+# Run Cfour 
+
+cd $wrkdir
+
+nohup xcfour > $job.log 2>&1
+
+# Clean up
+
+echo "Files in scratch directory:"
+ls -lt
+
+echo "Scratch disk space:"
+df -kh .
+
+if [ -f $job.log ]
+then
+        cp -f $job.log $prjdir/$job.log
+fi
+
+cd $prjdir
+rm -rf $wrkdir
+
+# Done
+
