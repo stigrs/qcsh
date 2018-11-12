@@ -29,6 +29,7 @@ fi
 if [ -f $basdir/GENBAS ]
 then
         cp -f $prjdir/GENBAS $wrkdir/GENBAS
+fi
 
 # Run Cfour 
 
